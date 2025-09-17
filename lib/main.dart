@@ -1,32 +1,57 @@
 import 'package:flutter/material.dart';
-import './questao.dart';
-import './resposta.dart';
+import './questionario.dart';
+import './resultado.dart';
 
 main() => runApp(PerguntaApp());
 
 class _PerguntaAppState extends State<PerguntaApp> {
   var _perguntaSelecionada = 0;
+  var _pontuacaoTotal = 0;
+
   final _perguntas = const [
     {
       'texto': 'Qual é a sua cor favorita?',
-      'respostas': ['Preto', 'Vermelho', 'Verde', 'Branco'],
+      'respostas': [
+        {'texto': 'Preto', 'pontuacao': 5},
+        {'texto': 'Vermelho', 'pontuacao': 8},
+        {'texto': 'Verde', 'pontuacao': 10},
+        {'texto': 'Branco', 'pontuacao': 1},
+      ],
     },
     {
       'texto': 'Qual é o seu animal favorito?',
-      'respostas': ['Coelho', 'Cobra', 'Elefante', 'Leão'],
+      'respostas': [
+        {'texto': 'Coelho', 'pontuacao': 7},
+        {'texto': 'Cobra', 'pontuacao': 10},
+        {'texto': 'Elefante', 'pontuacao': 9},
+        {'texto': 'Leão', 'pontuacao': 8},
+      ],
     },
     {
       'texto': 'Qual é o seu instrutor favorito?',
-      'respostas': ['Maria', 'João', 'Leo', 'Pedro'],
+      'respostas': [
+        {'texto': 'Maria', 'pontuacao': 9},
+        {'texto': 'João', 'pontuacao': 9},
+        {'texto': 'Leo', 'pontuacao': 10},
+        {'texto': 'Pedro', 'pontuacao': 9},
+      ],
     },
   ];
 
-  void _responder() {
+  void _responder(int pontuacao) {
     if (temPerguntaSelecionada) {
       setState(() {
         _perguntaSelecionada++;
+        _pontuacaoTotal += pontuacao;
       });
     }
+  }
+
+  void _reiniciarQuestionario() {
+    setState(() {
+      _perguntaSelecionada = 0;
+      _pontuacaoTotal = 0;
+    });
   }
 
   bool get temPerguntaSelecionada {
@@ -35,24 +60,19 @@ class _PerguntaAppState extends State<PerguntaApp> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> respostas = temPerguntaSelecionada
-        ? _perguntas[_perguntaSelecionada]['respostas'] as List<String>
-        : [];
-    List<Widget> widgets = respostas
-        .map((t) => Resposta(t, _responder))
-        .toList();
-
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: Text('Perguntados')),
         body: temPerguntaSelecionada
-            ? Column(
-                children: <Widget>[
-                  Questao(_perguntas[_perguntaSelecionada]['texto'] as String),
-                  ...widgets,
-                ],
+            ? Questionario(
+                perguntas: _perguntas,
+                perguntaSelecionada: _perguntaSelecionada,
+                quandoResponder: _responder,
               )
-            : null,
+            : Resultado(
+                pontuacao: _pontuacaoTotal,
+                quandoReiniciarQuestionario: _reiniciarQuestionario,
+              ),
       ),
     );
   }
